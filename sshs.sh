@@ -82,9 +82,11 @@ echo "Enter your EC2 IP:"
 read ec2_ip
 echo "Enter the port of your app:"
 read app_port
-echo "${ec2_ip}.nip.io {
+
+caddy_config="${ec2_ip}.nip.io {
   reverse_proxy localhost:$app_port
-}" | sudo tee /etc/caddy/Caddyfile
+}"
+echo "$caddy_config" | sudo tee /etc/caddy/Caddyfile > /dev/null
 
 # Start Caddy
 sudo systemctl start caddy
