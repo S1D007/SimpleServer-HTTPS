@@ -18,12 +18,12 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-# Install Node.js 18
-nvm install 18
-
 # Install npm packages
 cd "$repo_directory"
 npm install
+
+# Install Node.js 18
+nvm install 18
 
 # Initialize an array to store files to be copied
 files_to_copy=()
