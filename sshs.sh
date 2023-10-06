@@ -63,7 +63,9 @@ npm install pm2 -g
 # Start your application with PM2
 echo "Enter your PM2 app name:"
 read pm2_app_name
-pm2 start app.js --name "$pm2_app_name"
+echo "Type the Entry File Name (ex: dist/index.js, index.js, src/index.js etc):"
+read entry_file
+pm2 start "$entry_file" --name "$pm2_app_name"
 
 # Start PM2 on system startup
 pm2 startup
