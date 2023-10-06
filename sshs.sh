@@ -6,7 +6,10 @@ sudo apt-get update
 # Pull your repository from the specified URL
 echo "Enter the repository URL:"
 read repo_url
-git clone "$repo_url"
+# extract the directory name from the Git repo 
+repo_directory=$(basename "$repo_url" .git)
+git clone "$repo_url" "$repo_directory"
+
 
 # Install NVM
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
@@ -19,7 +22,7 @@ export NVM_DIR="$HOME/.nvm"
 nvm install 18
 
 # Install npm packages
-cd your-repo-directory
+cd "$repo_directory"
 npm install
 
 # Initialize an array to store files to be copied
