@@ -89,7 +89,10 @@ caddy_config="${ec2_ip}.nip.io {
 echo "$caddy_config" | sudo tee /etc/caddy/Caddyfile > /dev/null
 
 # Start Caddy
-sudo systemctl start caddy
+  #Before Running the Caddfile we have to reload the caddy so that it can use the newly added config File :)
+caddy reload
+  # Now Running makes Sense
+caddy run
 
 # Exit with a message
-echo "Thanks! Happy Coding!"
+echo "Thanks For Using SSHS! Happy Coding!"
