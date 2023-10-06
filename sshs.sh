@@ -6,10 +6,8 @@ sudo apt-get update
 # Pull your repository from the specified URL
 echo "Enter the repository URL:"
 read repo_url
-# extract the directory name from the Git repo 
 repo_directory=$(basename "$repo_url" .git)
 git clone "$repo_url" "$repo_directory"
-
 
 # Install NVM
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
@@ -18,12 +16,12 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
+# Install Node.js 18
+nvm install 18
+
 # Install npm packages
 cd "$repo_directory"
 npm install
-
-# Install Node.js 18
-nvm install 18
 
 # Initialize an array to store files to be copied
 files_to_copy=()
@@ -39,14 +37,20 @@ while true; do
   echo "Enter the destination path:"
   read destination_path
 
-  # Add the source and destination paths to the array
-  files_to_copy+=("$source_path" "$destination_path")
+  # Check if the source file or folder exists
+  if [ ! -e "$source_path" ]; then
+    echo "Source file or folder does not exist: $source_path"
+  else
+    # Add the source and destination paths to the array
+    files_to_copy+=("$source_path" "$destination_path")
+  fi
 done
 
 # Copy files from source to destination
 for ((i = 0; i < ${#files_to_copy[@]}; i+=2)); do
   source="${files_to_copy[$i]}"
   destination="${files_to_copy[$i + 1]}"
+  mkdir -p "$(dirname "$destination")"
   cp -r "$source" "$destination"
 done
 
