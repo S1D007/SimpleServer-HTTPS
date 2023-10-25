@@ -66,7 +66,7 @@ echo "Installing NVM..."
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash &> /dev/null &
 show_spinner "$!"
 
-# Load NVM
+# Load NVM and install Node.js
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
@@ -75,8 +75,12 @@ echo "Installing Node.js 18..."
 nvm install 18 &> /dev/null &
 show_spinner "$!"
 
+# Use Node.js 18
+nvm use 18
+
 # Install npm packages
 cd "$repo_directory"
+echo "Installing npm packages..."
 npm install
 
 # Initialize an array to store files to be copied
@@ -110,8 +114,21 @@ for ((i = 0; i < ${#files_to_copy[@]}; i+=2)); do
   cp -r "$source" "$destination"
 done
 
-# Build the project
-npm run build
+# Check if the project is a TypeScript project
+echo "Is this a TypeScript project? (yes/no)"
+read is_typescript
+
+if [ "$is_typescript" == "yes" ]; then
+  # Ask for the build script for TypeScript
+  echo "Enter the script name (ex: npm run build) for building the TypeScript project:"
+  read build_script
+fi
+
+# Build the project based on the user input
+if [ "$is_typescript" == "yes" ]; then
+  echo "Building TypeScript project using script: $build_script"
+  npm run "$build_script"
+fi
 
 # Install PM2
 npm install pm2 -g
