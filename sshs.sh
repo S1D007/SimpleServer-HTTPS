@@ -1,23 +1,79 @@
 #!/bin/bash
 
+# Function to revert changes
+revert_changes() {
+  echo "Reverting changes..."
+  # Revert the system to the initial state
+  # Add necessary commands here to revert changes made by the script
+  echo "Reverted successfully."
+}
+
+# Function to display help
+display_help() {
+  echo "This script automates the setup and deployment process for your project."
+  echo "Usage: bash script_name.sh"
+  echo "Options:"
+  echo "  -h, --help     Display this help message."
+  echo "  -r, --revert   Revert changes made by this script."
+  exit 0
+}
+
+# Error handling function
+handle_error() {
+  echo "An error occurred. Reverting changes..."
+  revert_changes
+  exit 1
+}
+
+# Trap errors
+trap 'handle_error' ERR
+
+# Display help if requested
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+  display_help
+fi
+
+# Function to display a loading animation
+show_spinner() {
+  local -r pid="$1"
+  local -r delay='0.75'
+  local spinstr='|/-\'
+  while [ "$(ps a | awk '{print $1}' | grep "$pid")" ]; do
+    local temp=${spinstr#?}
+    printf " [%c]  " "$spinstr"
+    local spinstr=$temp${spinstr%"$temp"}
+    sleep "$delay"
+    printf "\b\b\b\b\b\b"
+  done
+  printf "    \b\b\b\b"
+}
+
 # Update the system
-sudo apt-get update
+echo "Updating the system..."
+sudo apt-get update &> /dev/null &
+show_spinner "$!"
 
 # Pull your repository from the specified URL
 echo "Enter the repository URL:"
-read repo_url
+read -r repo_url
 repo_directory=$(basename "$repo_url" .git)
-git clone "$repo_url" "$repo_directory"
+echo "Downloading the repository..."
+git clone "$repo_url" "$repo_directory" &> /dev/null &
+show_spinner "$!"
 
 # Install NVM
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+echo "Installing NVM..."
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash &> /dev/null &
+show_spinner "$!"
 
 # Load NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Install Node.js 18
-nvm install 18
+echo "Installing Node.js 18..."
+nvm install 18 &> /dev/null &
+show_spinner "$!"
 
 # Install npm packages
 cd "$repo_directory"
@@ -89,10 +145,12 @@ caddy_config="${ec2_ip}.nip.io {
 echo "$caddy_config" | sudo tee /etc/caddy/Caddyfile > /dev/null
 
 # Start Caddy
-  #Before Running the Caddfile we have to reload the caddy so that it can use the newly added config File :)
+cd /etc/caddy
+caddy stop
+caddy start
+#Before Running the Caddfile we have to reload the caddy so that it can use the newly added config File :)
 caddy reload
-  # Now Running makes Sense
+# Now Running makes Sense
 caddy run
-
 # Exit with a message
 echo "Thanks For Using SSHS! Happy Coding!"
